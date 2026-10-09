@@ -22,7 +22,7 @@ fn dot<const N: usize>(a: &[f64; N], b: &[f64; N]) -> f64 {
     sum
 }
 
-fn matrix_product<const N: usize>(matrix: &[[f64; N]; N], vector: &[f64; N]) -> [f64; N]{
+fn mat_vec_prod<const N: usize>(matrix: &[[f64; N]; N], vector: &[f64; N]) -> [f64; N]{
     let mut result:[f64; N] = [0.0; N];
     for i in 0..N {
         result[i] = dot(&matrix[i], vector);
@@ -39,49 +39,49 @@ struct Quadratic<const N: usize> {
 
 impl<const N: usize> Quadratic<N> {
     fn eval(&self, x: &[f64; N]) -> f64 {
-        0.5 * dot(x, &matrix_product(&self.p, x)) + dot(&self.q, x) + self.r
+        0.5 * dot(x, &mat_vec_prod(&self.p, x)) + dot(&self.q, x) + self.r
+    }
+
+    // ∇f(x) = 0.5 * (P + Pᵀ)x + q, since P is symmetric then ∇f(x) = Px + q 
+    // (will likely gotta change this if i go beyond symmetric matrices)
+    fn gradient(&self, x:&[f64; N]) -> [f64; N]{
+        let mut grad: [f64; N] = mat_vec_prod(&self.p, x);
+        // Might have to generalize matrix addition. 
+        for i in 0..N {
+            grad[i] += self.q[i];
+        }
+        grad
     }
 }
 
 
+
 fn main() {
     let f: Quadratic::<2> = Quadratic {
-        p: [[2.0, 0.5], [0.5, 1.0]], // P ∈ S^n_+
+        p: [[2.0, 0.5], [0.5, 1.0]], // P ∈ S^n_+, meaning P must be symmetric
         q: [3.0, -1.0],
         r: 10.0,
     };
 
+    // Starting point x_0, must lie in the domain of f. 
     let x0: [f64; 2] = [1.0, 0.0];
 
+
+
+
     println!("{}",f.eval(&x0));
-
-
-
-    //print_quadradic(f);
-
-    // Starting point x_0, must lie in the domain of f. 
-    //let x0: f64 = 1.0;
-
 }
 
-// fn print_matrix(a: [[f64; 2];2]){
-//     for element in a {
-//         println!("{a[element]}");
-//     }
-// }
 
-// fn print_quadradic(f: Quadratic) {
-//     // Quadradic should completely on stack since there are no vectors in it yet or ever. 
-//     println!("(1/2) * ")
 
-// }
+fn gradient_descent<const N: usize>(f: &Quadratic::<N>, x0: [f64;N], tol: f64) {
+    let mut x: [f64; N] = x0;
+    loop {
+        let mut dx = -1.0 * f.gradient(&mut x);
 
 
 
-// fn minimizing_sequence() {
+    } 
 
-// }
-
-// fn gradient_descent() {
-//     // Given a starting point x in domain of f
-// }
+    // Given a starting point x in domain of f
+}
